@@ -6,16 +6,12 @@ const CreatePlayer = (name, mark) => {
 //module that controls game display
 const gameBoard = (() => {
     'use strict';
-    console.log('this is the gameboard module');
+    // console.log('this is the gameboard module');
 
     const displayBoard = document.getElementById('container');
-    const text = document.getElementById('text');
-
-    text.innerText = `It's Player 1's move`;
+    
     //create game array
     let gameArray = [];
-
-    //populate DOM grid with array content
     for(let i=0; i < 9; i++) {
         gameArray.push('');
     }
@@ -38,47 +34,45 @@ const gameBoard = (() => {
             cell.classList.remove('empty');
             game.emptyCells -= 1;
 
-            //return if cell has already been marked
             cell.style.pointerEvents = 'none';
 
-
-
-            //check winner
+            //check winner / tie
             game.checkWinner();
             if(game.winnerDeclared === true) {
-                console.log('Winner');
                 displayBoard.style.pointerEvents = 'none';
                 text.innerText = `Game Over! ${game.currentPlayer.name} is victorious!`;
             }
             
             game.checkTie();
-            console.log(game.isTie)
             if(game.isTie === true) {
-                console.log('TIE');
                 displayBoard.style.pointerEvents = 'none';
                 text.innerText = `Game Over ! It's a tie!`
             }
-            console.log(game.emptyCells)
+            
             //switch players
             game.playerSwitch();
-
-
         });
     }); 
+
+    const resetBtn = document.getElementById('reset-button');
+
+    resetBtn.addEventListener('click', () => {
+        window.location.reload();
+});
     
     //return global
-    return { gameArray, displayBoard, text };
+    return { gameArray, displayBoard };
 })();
 
 //module that controls game flow
 const game = (() => {
     'use strict';
-    console.log('this controls the flow of the game'); 
-     //create players
+    // console.log('this controls the flow of the game');
+        //establish beginning state 
+    const text = document.getElementById('text');   
+    text.innerText = `It's Player 1's move`;
     const playerOne = CreatePlayer('Player 1', 'X');
     const playerTwo = CreatePlayer('Player 2', 'O');
-
-    //establish beginning state
     let currentPlayer = playerOne;
     let emptyCells = 9;
     let winnerDeclared = false;
@@ -86,15 +80,17 @@ const game = (() => {
     
     //switch player function
     function playerSwitch() {
-        if(game.currentPlayer == playerOne && game.winnerDeclared === false) {
+        if(game.isTie === true) {
+            text.innerText = `It's a tie...`;
+        } else if(game.currentPlayer == playerOne && game.winnerDeclared === false && game.isTie === false) {
             game.currentPlayer = playerTwo
             text.innerText = `It's ${game.currentPlayer.name}'s turn.  Make a move!`
-        } else if(game.currentPlayer == playerTwo && game.winnerDeclared === false) {
+        } else if(game.currentPlayer == playerTwo && game.winnerDeclared === false && game.isTie === false) {
             game.currentPlayer = playerOne;
             text.innerText = `It's ${game.currentPlayer.name}'s turn.  Make a move!`
         } else if(game.winnerDeclared === true) {
             text.innerText = `Game Over! ${game.currentPlayer.name} wins!`;
-        }
+        } 
     }
 
 
@@ -127,9 +123,3 @@ const game = (() => {
 
     return { currentPlayer, emptyCells, playerSwitch, winnerDeclared, winningConditions, checkWinner, checkTie, isTie }
 })();
-
-const resetBtn = document.getElementById('reset-button');
-
-resetBtn.addEventListener('click', () => {
-        window.location.reload();
-});
